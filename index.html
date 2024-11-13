@@ -11,23 +11,26 @@
 		<button onclick="getCurrentLocation()">현재 위치 갱신</button>
 	</p>
 	
-	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1c95aae6030dd6ee248769fbd3d76f5d"></script>
+	<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1c95aae6030dd6ee248769fbd3d76f5d"></script>
 	<script>
-		var lat = position.coords.latitude;
-		var lon = position.coords.longitude;
+		// 초기값 설정 (임의의 위치로 설정)
 		var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 			mapOption = { 
-				center: new kakao.maps.LatLng(lat , lon), // 지도의 중심좌표
+				center: new kakao.maps.LatLng(37.5665, 126.9780), // 초기 중심좌표 (서울 시청)
 				level: 3 // 지도의 확대 레벨
 			};
-		// 현재 위치의 위도와 경도를 가져옴
-		var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
-		// HTML5 Geolocation API를 사용하여 현재 위치 가져오기
+		
+		// 카카오 지도 생성
+		var map = new kakao.maps.Map(mapContainer, mapOption);
+
+		// 현재 위치 가져오기
 		function getCurrentLocation() {
 			if (navigator.geolocation) {
 				// GPS 사용 가능할 경우 위치 정보를 요청
 				navigator.geolocation.getCurrentPosition(function(position) {
-					
+					// 위치 정보를 가져온 후 위도와 경도를 설정
+					var lat = position.coords.latitude;
+					var lon = position.coords.longitude;
 
 					// 현재 위치로 이동할 좌표 생성
 					var locPosition = new kakao.maps.LatLng(lat, lon);
@@ -49,14 +52,13 @@
 				alert("현재 위치를 가져올 수 있는 브라우저가 아닙니다.");
 			}
 		}
+
+		// 다른 좌표로 이동하는 함수 (getCurrentLocation 호출 후에 사용 가능)
 		function setCenter() {            
-			// 이동할 위도 경도 위치를 생성합니다 
-			var moveLatLon = new kakao.maps.LatLng(lat, lon);
-			
-			// 지도 중심을 이동 시킵니다
+			var moveLatLon = map.getCenter(); // 현재 중심 좌표를 그대로 사용
 			map.setCenter(moveLatLon);
 		}
 		
-		</script>
+	</script>
 </body>
 </html>
