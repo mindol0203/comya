@@ -8,35 +8,55 @@
 	<div id="map" style="width:500px;height:400px;"></div>
 	<p>
 		<button onclick="setCenter()">지도 중심좌표 이동시키기</button> 
-		<button onclick="panTo()">지도 중심좌표 부드럽게 이동시키기</button> 
+		<button onclick="getCurrentLocation()">현재 위치 갱신</button>
 	</p>
 	
 	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1c95aae6030dd6ee248769fbd3d76f5d"></script>
 	<script>
+		var lat = position.coords.latitude;
+		var lon = position.coords.longitude;
 		var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 			mapOption = { 
-				center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+				center: new kakao.maps.LatLng(lat , lon), // 지도의 중심좌표
 				level: 3 // 지도의 확대 레벨
 			};
-		
+		// 현재 위치의 위도와 경도를 가져옴
 		var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
-		
+		// HTML5 Geolocation API를 사용하여 현재 위치 가져오기
+		function getCurrentLocation() {
+			if (navigator.geolocation) {
+				// GPS 사용 가능할 경우 위치 정보를 요청
+				navigator.geolocation.getCurrentPosition(function(position) {
+					
+
+					// 현재 위치로 이동할 좌표 생성
+					var locPosition = new kakao.maps.LatLng(lat, lon);
+
+					// 지도 중심을 현재 위치로 이동
+					map.setCenter(locPosition);
+
+					// 현재 위치에 마커 표시
+					var marker = new kakao.maps.Marker({
+						position: locPosition
+					});
+					marker.setMap(map);
+				}, function(error) {
+					// 위치 정보가 없거나 허용하지 않은 경우 에러 처리
+					alert("위치 정보를 가져올 수 없습니다.");
+				});
+			} else {
+				// Geolocation을 지원하지 않는 경우 처리
+				alert("현재 위치를 가져올 수 있는 브라우저가 아닙니다.");
+			}
+		}
 		function setCenter() {            
 			// 이동할 위도 경도 위치를 생성합니다 
-			var moveLatLon = new kakao.maps.LatLng(33.452613, 126.570888);
+			var moveLatLon = new kakao.maps.LatLng(lat, lon);
 			
 			// 지도 중심을 이동 시킵니다
 			map.setCenter(moveLatLon);
 		}
 		
-		function panTo() {
-			// 이동할 위도 경도 위치를 생성합니다 
-			var moveLatLon = new kakao.maps.LatLng(33.450580, 126.574942);
-			
-			// 지도 중심을 부드럽게 이동시킵니다
-			// 만약 이동할 거리가 지도 화면보다 크면 부드러운 효과 없이 이동합니다
-			map.panTo(moveLatLon);            
-		}        
 		</script>
 </body>
 </html>
