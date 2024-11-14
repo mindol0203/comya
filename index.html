@@ -53,6 +53,8 @@
 			}
 		}
 
+		setInterval(getCurrentLocation, 10000); // 10초마다 getCurrentLocation 함수 호출
+
 		// 다른 좌표로 이동하는 함수 (getCurrentLocation 호출 후에 사용 가능)
 		function setCenter() {            
 			var moveLatLon = map.getCenter(); // 현재 중심 좌표를 그대로 사용
