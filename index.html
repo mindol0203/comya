@@ -6,60 +6,76 @@
 </head>
 <body>
 	<div id="map" style="width:500px;height:400px;"></div>
-	<p>
-		<button onclick="setCenter()">지도 중심좌표 이동시키기</button> 
-		<button onclick="getCurrentLocation()">현재 위치 갱신</button>
-	</p>
 	
 	<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1c95aae6030dd6ee248769fbd3d76f5d"></script>
 	<script>
-		// 초기값 설정 (임의의 위치로 설정)
-		var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
-			mapOption = { 
-				center: new kakao.maps.LatLng(37.5665, 126.9780), // 초기 중심좌표 (서울 시청)
-				level: 3 // 지도의 확대 레벨
-			};
-		
-		// 카카오 지도 생성
-		var map = new kakao.maps.Map(mapContainer, mapOption);
+		var mapContainer = document.getElementById('map');
+		var map; // 지도 객체를 나중에 초기화
+		var marker = null; // 위치 마커를 저장할 변수
 
-		// 현재 위치 가져오기
-		function getCurrentLocation() {
+		// 초기 위치 설정 및 지도 생성
+		function initializeMap() {
 			if (navigator.geolocation) {
-				// GPS 사용 가능할 경우 위치 정보를 요청
 				navigator.geolocation.getCurrentPosition(function(position) {
-					// 위치 정보를 가져온 후 위도와 경도를 설정
+					// 현재 위치의 위도와 경도 가져오기
 					var lat = position.coords.latitude;
 					var lon = position.coords.longitude;
+					var locPosition = new kakao.maps.LatLng(lat, lon);
 
-					// 현재 위치로 이동할 좌표 생성
+					// 초기 지도를 현재 위치로 설정
+					var mapOption = { 
+						center: locPosition,
+						level: 3 // 지도의 확대 레벨
+					};
+					map = new kakao.maps.Map(mapContainer, mapOption);
+
+					// 초기 위치에 마커 설정
+					marker = new kakao.maps.Marker({
+						position: locPosition
+					});
+					marker.setMap(map);
+				}, function(error) {
+					alert("위치 정보를 가져올 수 없습니다.");
+				});
+			} else {
+				alert("현재 위치를 가져올 수 있는 브라우저가 아닙니다.");
+			}
+		}
+
+		// 현재 위치를 주기적으로 갱신하여 지도 중심과 마커 위치 업데이트
+		function getCurrentLocation() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(function(position) {
+					var lat = position.coords.latitude;
+					var lon = position.coords.longitude;
 					var locPosition = new kakao.maps.LatLng(lat, lon);
 
 					// 지도 중심을 현재 위치로 이동
 					map.setCenter(locPosition);
 
-					// 현재 위치에 마커 표시
-					var marker = new kakao.maps.Marker({
+					// 기존 마커 제거
+					if (marker) {
+						marker.setMap(null);
+					}
+
+					// 현재 위치에 새로운 마커 표시
+					marker = new kakao.maps.Marker({
 						position: locPosition
 					});
 					marker.setMap(map);
 				}, function(error) {
-					// 위치 정보가 없거나 허용하지 않은 경우 에러 처리
 					alert("위치 정보를 가져올 수 없습니다.");
 				});
 			} else {
-				// Geolocation을 지원하지 않는 경우 처리
 				alert("현재 위치를 가져올 수 있는 브라우저가 아닙니다.");
 			}
 		}
 
-		setInterval(getCurrentLocation, 10000); // 10초마다 getCurrentLocation 함수 호출
+		// 5초마다 현재 위치 갱신
+		setInterval(getCurrentLocation, 5000);
 
-		// 다른 좌표로 이동하는 함수 (getCurrentLocation 호출 후에 사용 가능)
-		function setCenter() {            
-			var moveLatLon = map.getCenter(); // 현재 중심 좌표를 그대로 사용
-			map.setCenter(moveLatLon);
-		}
+		// 초기 지도 설정
+		initializeMap();
 		
 	</script>
 </body>
